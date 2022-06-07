@@ -142,7 +142,7 @@ class GameOver:
         self.create_widgets()
 
         win_width = 500
-        win_height = 500
+        win_height = 350
 
         screen_width = self.game_over.winfo_screenwidth()
         screen_height = self.game_over.winfo_screenheight()
@@ -162,20 +162,31 @@ class GameOver:
 
 
     def create_widgets(self):
+        global photo
 
         main_frame = tk.LabelFrame(self.game_over)
         main_frame.pack(expand=True)
+
+        image = Image.open('loose.png')
+        resized = image.resize((450, 200), Image.Resampling.LANCZOS)
+        photo = ImageTk.PhotoImage(resized)
+
+        image_label = tk.Label(main_frame, image=photo)
+        image_label.grid(column=0, row=0, padx=3, pady=5, columnspan=2)
+
+        self.loose_label = tk.Label(main_frame, font=('Times', 20, "bold"), fg='purple', text="GAME OVER!")
+        self.loose_label.grid(column=0, row=1, padx=18, columnspan=2, pady=10)
 
         s = ttk.Style()
         s.configure('my.TButton', foreground="black", background="black", font=('FontAwesome', 11, "bold"))
 
         self.main_menu_button = ttk.Button(main_frame, style='my.TButton', text="Main Menu",
                                            command=self.mainMenu_handler)
-        self.main_menu_button.grid(column=0, row=0, padx=10, pady=10, sticky=tk.E)
+        self.main_menu_button.grid(column=0, row=2, padx=10, pady=10, sticky=tk.E)
 
         self.exit_button = ttk.Button(main_frame, style='my.TButton', text="Exit Game",
                                       command=self.exit_handler)
-        self.exit_button.grid(column=1, row=0, padx=10, pady=10, sticky=tk.W)
+        self.exit_button.grid(column=1, row=2, padx=10, pady=10, sticky=tk.W)
 
 class WellDone:
     def __init__(self):
@@ -187,7 +198,7 @@ class WellDone:
         self.create_widgets()
 
         win_width = 500
-        win_height = 500
+        win_height = 350
 
         screen_width = self.wellDone_window.winfo_screenwidth()
         screen_height = self.wellDone_window.winfo_screenheight()
@@ -207,26 +218,31 @@ class WellDone:
 
 
     def create_widgets(self):
+        global photo
 
         main_frame = tk.LabelFrame(self.wellDone_window)
         main_frame.pack(expand=True)
+
+        image = Image.open('win.png')
+        resized = image.resize((450, 200), Image.Resampling.LANCZOS)
+        photo = ImageTk.PhotoImage(resized)
+
+        image_label = tk.Label(main_frame, image=photo)
+        image_label.grid(column=0, row=0, padx=3, pady=5, columnspan=2)
+
+        self.win_label = tk.Label(main_frame, font=('Times', 20, "bold"), fg='orange', text="WELL DONE!")
+        self.win_label.grid(column=0, row=1, padx=18, columnspan=2, pady=10)
 
         s = ttk.Style()
         s.configure('my.TButton', foreground="black", background="black", font=('FontAwesome', 11, "bold"))
 
         self.main_menu_button = ttk.Button(main_frame, style='my.TButton', text="Main Menu",
                                            command=self.mainMenu_handler)
-        self.main_menu_button.grid(column=0, row=0, padx=10, pady=10, sticky=tk.E)
+        self.main_menu_button.grid(column=0, row=2, padx=10, pady=10, sticky=tk.E)
 
         self.exit_button = ttk.Button(main_frame, style='my.TButton', text="Exit Game",
                                       command=self.exit_handler)
-        self.exit_button.grid(column=1, row=0, padx=10, pady=10, sticky=tk.W)
-
-
-
-
-
-
+        self.exit_button.grid(column=1, row=2, padx=10, pady=10, sticky=tk.W)
 
 
 
