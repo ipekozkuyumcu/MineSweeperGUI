@@ -2,6 +2,14 @@ import tkinter as tk
 from tkinter import ttk
 from PIL import ImageTk, Image
 from tkinter import messagebox as msg
+from logic import Cell 
+from random import randint
+
+board = [[Cell(x,y) for y in range(9)] for x in range(9)]
+bombx = [randint(0,8) for x in range(11)]
+bomby = [randint(0,8) for x in range(11)]
+for i in range(11):
+    board[bombx[i]][bomby[i]].make_bomb()
 
 class MainMenu:
     def __init__(self):
@@ -49,7 +57,7 @@ class MainMenu:
         main_frame.pack(expand=True)
 
         image = Image.open('title.png')
-        resized = image.resize((450, 70), Image.Resampling.LANCZOS)
+        resized = image.resize((450, 70), Image.LANCZOS)
         photo = ImageTk.PhotoImage(resized)
 
         image_label = tk.Label(main_frame, image=photo)
@@ -112,10 +120,95 @@ class Game:
         gameOver.game_over.focus_force()
 
     def win_handler_DELETE(self):
-        self.game_window.destroy()
-        wellDone = WellDone()
-        wellDone.wellDone_window.focus_force()
+        won = True
+        for i in range(10):
+            if board[bombx[i]][bomby[i]].f == False:
+                won = False
+        if won:
+            self.game_window.destroy()
+            wellDone = WellDone()
+            wellDone.wellDone_window.focus_force()
 
+    def cal_env(self, board, L, i, j):
+        if len(board) > i+1 and L[i+1][j].cget("text") == '    ':
+            board[i+1][j].calculate_val(board) 
+            if board[i+1][j].val != -1:
+                L[i+1][j].config(text=" "+str(board[i+1][j].val)+" ")
+            if board[i+1][j].val == 0:    
+                self.cal_env(board, L, i+1, j)
+
+        if i-1 >= 0 and L[i-1][j].cget("text") == '    ':
+            board[i-1][j].calculate_val(board) 
+            if board[i-1][j].val != -1:
+                L[i-1][j].config(text=" "+str(board[i-1][j].val)+" ")
+            if board[i-1][j].val == 0:
+                self.cal_env(board, L, i-1, j)
+
+        if len(board) > j+1 and L[i][j+1].cget("text") == '    ': 
+            board[i][j+1].calculate_val(board)
+            if board[i][j+1].val != -1:
+                L[i][j+1].config(text=" "+str(board[i][j+1].val)+" ")
+            if board[i][j+1].val== 0:
+                self.cal_env(board, L, i, j+1)
+                
+        if j-1 >= 0 and L[i][j-1].cget("text") == '    ': 
+            board[i][j-1].calculate_val(board)         
+            if board[i][j-1].val != -1:
+                L[i][j-1].config(text=" "+str(board[i][j-1].val)+" ")
+            if board[i][j-1].val== 0:
+                self.cal_env(board, L, i, j-1)
+
+        if i-1 >= 0 and j-1 >= 0 and L[i-1][j-1].cget("text") == '    ':
+            board[i-1][j-1].calculate_val(board)          
+            if board[i-1][j-1].val != -1:
+                L[i-1][j-1].config(text=" "+str(board[i-1][j-1].val)+" ")
+            if board[i-1][j-1].val==0:
+                self.cal_env(board, L, i-1, j-1)
+
+        if j-1 >= 0 and len(board) > i+1 and L[i+1][j-1].cget("text") == '    ':
+            board[i+1][j-1].calculate_val(board)       
+            if board[i+1][j-1].val != -1:
+                L[i+1][j-1].config(text=" "+str(board[i+1][j-1].val)+" ")        
+            if board[i+1][j-1].val==0:
+                self.cal_env(board, L, i+1, j-1)
+                
+        if len(board) > i+1 and len(board) > j+1 and L[i+1][j+1].cget("text") == '    ':
+            board[i+1][j+1].calculate_val(board)          
+            if board[i+1][j+1].val != -1:
+                L[i+1][j+1].config(text=" "+str(board[i+1][j+1].val)+" ")                
+            if board[i+1][j+1].val==0:
+                self.cal_env(board, L, i+1, j+1)
+                
+        if i-1 >= 0 and len(board) > j+1 and L[i-1][j+1].cget("text") == '    ':
+            board[i-1][j+1].calculate_val(board)
+            if board[i-1][j+1].val != -1:
+                L[i-1][j+1].config(text=" "+str(board[i-1][j+1].val)+" ")
+            if board[i-1][j+1].val==0:
+                self.cal_env(board, L, i-1, j+1)
+
+    def on_click(self,i,j,event,L):
+        if event.num == 1:
+            if board[i][j].val == -1:
+                #self.end_handler_DELETE()
+                pass
+            else:
+                board[i][j].calculate_val(board)
+                event.widget.config(text=" "+str(board[i][j].val)+" ")
+                if board[i][j].val == 0:
+                    self.cal_env(board, L, i, j)
+    
+
+        if event.num == 3:
+            if board[i][j].f == False:
+                color = "red"
+                event.widget.config(bg=color)
+                board[i][j].f = True
+            else:
+                color = "white"
+                event.widget.config(bg=color)
+                board[i][j].f = False
+                
+                
 
     def create_widgets(self):
         main_frame = tk.LabelFrame(self.game_window)
@@ -123,14 +216,29 @@ class Game:
 
         s = ttk.Style()
         s.configure('my.TButton', foreground="black", background="black", font=('FontAwesome', 11, "bold"))
+        L = [[tk.Label() for y in range(9)] for x in range(9)]
+        
+        for i,row in enumerate(board):
+            for j,column in enumerate(row):
+                
+                L[i][j] = tk.Label(main_frame,text='    ',bg='white', borderwidth=3, relief="ridge")
+                L[i][j].grid(row=i,column=j)
+                L[i][j].bind('<Button-1>',lambda e,i=i,j=j: self.on_click(i,j,e,L))
+                L[i][j].bind('<Button-3>',lambda e,i=i,j=j: self.on_click(i,j,e,L))
+                
 
+        """
         self.END_DELETE = ttk.Button(main_frame, style='my.TButton', text="Loose",
                                      command=self.end_handler_DELETE)
         self.END_DELETE.grid(column=0, row=0, padx=10, pady=10, sticky=tk.E)
-
-        self.WIN_DELETE = ttk.Button(main_frame, style='my.TButton', text="Win",
+        """
+        self.WIN_DELETE = ttk.Button(main_frame, style='my.TButton', text="Check",
                                      command=self.win_handler_DELETE)
-        self.WIN_DELETE.grid(column=1, row=0, padx=10, pady=10, sticky=tk.W)
+        self.WIN_DELETE.grid(column=len(board), row=len(board), padx=10, pady=10, sticky=tk.W)
+        
+    
+        
+
 
 class GameOver:
     def __init__(self):
@@ -168,7 +276,7 @@ class GameOver:
         main_frame.pack(expand=True)
 
         image = Image.open('loose.png')
-        resized = image.resize((450, 200), Image.Resampling.LANCZOS)
+        resized = image.resize((450, 200), Image.LANCZOS)
         photo = ImageTk.PhotoImage(resized)
 
         image_label = tk.Label(main_frame, image=photo)
@@ -224,7 +332,7 @@ class WellDone:
         main_frame.pack(expand=True)
 
         image = Image.open('win.png')
-        resized = image.resize((450, 200), Image.Resampling.LANCZOS)
+        resized = image.resize((450, 200), Image.LANCZOS)
         photo = ImageTk.PhotoImage(resized)
 
         image_label = tk.Label(main_frame, image=photo)
