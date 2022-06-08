@@ -1,5 +1,3 @@
-from random import randint
-
 class Cell():
     def __init__(self, x, y):
         self.x = x
@@ -57,13 +55,3 @@ class Cell():
         
     def __str__(self):
         return ""+str(self.x)+",  "+str(self.y)+", val:"+str(self.val)
-"""
-board = [[Cell(x,y) for y in range(6)] for x in range(6)]
-print(board)
-bombx = [randint(0,5) for x in range(12)]
-bomby = [randint(0,5) for x in range(12)]
-for i in range(12):
-    board[bombx[i]][bomby[i]].make_bomb()
-
-print( [[str(board[x][y]) for y in range(6)] for x in range(6)])
-"""
