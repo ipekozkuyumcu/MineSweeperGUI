@@ -70,6 +70,7 @@ class MainMenu:
 
         self.game.grid(column=0, row=2, columnspan=2,  padx=18, pady=10)
 
+        # Creating button style
         s = ttk.Style()
         s.configure('my.TButton', foreground="black", background="black", font=('FontAwesome', 10, "bold"))
 
@@ -102,6 +103,11 @@ class Game:
         y = int((screen_height / 2) - (win_height / 2))
 
         self.game_window.geometry(f"{win_width}x{win_height}+{x}+{y}")
+
+    def loose_handler(self):
+        self.game_window.destroy()
+        loose = GameOver()
+        loose.game_over.focus_force()
 
     # Check button action
     def check_handler(self):
@@ -175,7 +181,7 @@ class Game:
         if event.num == 1:
             if board[i][j].val == -1:
                 # Loose condition
-                # self.end_handler_DELETE()
+                # self.loose_handler()
                 pass
             else:
                 board[i][j].calculate_val(board)
